@@ -701,15 +701,21 @@ const UI = (() => {
 })();
 
 /* ============================================================
-   SERVICE WORKER — registro
+   SERVICE WORKER — registro y recarga automática al actualizar
    ============================================================ */
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
-      .catch(err => {
+      .catch(() => {
         // Fallo silencioso — la app sigue funcional sin SW
-        // No exponer detalles del error al usuario
       });
+
+    // Escuchar mensaje del SW nuevo y recargar inmediatamente
+    navigator.serviceWorker.addEventListener("message", event => {
+      if (event.data && event.data.type === "SW_UPDATED") {
+        window.location.reload();
+      }
+    });
   });
 }
 

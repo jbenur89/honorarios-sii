@@ -12,7 +12,7 @@
 "use strict";
 
 // Incrementar CACHE_VERSION al publicar cambios
-const CACHE_VERSION = "mys-honorarios-v2.1";
+const CACHE_VERSION = "mys-honorarios-v2.2";
 
 const ASSETS_TO_CACHE = [
   "./index.html",
@@ -30,7 +30,7 @@ self.addEventListener("install", event => {
   );
 });
 
-/* ---- Activate: limpiar caches de versiones anteriores ---- */
+/* ---- Activate: limpiar caches anteriores y forzar recarga ---- */
 self.addEventListener("activate", event => {
   event.waitUntil(
     caches.keys()
@@ -40,6 +40,13 @@ self.addEventListener("activate", event => {
           .map(key => caches.delete(key))
       ))
       .then(() => self.clients.claim())
+      .then(() => {
+        // Notificar a todas las pestañas abiertas para que recarguen
+        return self.clients.matchAll({ type: "window" })
+          .then(clients => {
+            clients.forEach(client => client.postMessage({ type: "SW_UPDATED" }));
+          });
+      })
   );
 });
 
