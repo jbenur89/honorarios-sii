@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="40" fill="#1d9e75"/>
+  <rect x="20" y="20" width="152" height="152" rx="28" fill="#17856200"/>
+  <!-- Documento estilizado -->
+  <rect x="52" y="38" width="88" height="108" rx="10" fill="white" opacity="0.15"/>
+  <rect x="58" y="44" width="76" height="96" rx="8" fill="white" opacity="0.95"/>
+  <!-- Líneas del documento -->
+  <rect x="68" y="62" width="44" height="4" rx="2" fill="#1d9e75"/>
+  <rect x="68" y="74" width="56" height="3" rx="1.5" fill="#9fe1cb"/>
+  <rect x="68" y="84" width="50" height="3" rx="1.5" fill="#9fe1cb"/>
+  <rect x="68" y="94" width="56" height="3" rx="1.5" fill="#9fe1cb"/>
+  <!-- Símbolo $ -->
+  <circle cx="104" cy="118" r="18" fill="#1d9e75"/>
+  <text x="104" y="124" text-anchor="middle" font-family="Arial, sans-serif" font-size="20" font-weight="700" fill="white">$</text>
+  <!-- Texto MyS -->
+  <text x="96" y="168" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="white" opacity="0.9">MyS</text>
+</svg>

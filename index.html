@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="description" content="Calculadora de Boleta de Honorarios SII Chile — MyS Capacitación">
+<meta name="theme-color" content="#1d9e75">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Honorarios">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" type="image/svg+xml" href="./icon-192.svg">
+<link rel="apple-touch-icon" href="./icon-192.svg">
+
+<title>Honorarios SII — MyS Capacitación</title>
+
+<style>
+/* ============================================================
+   DESIGN TOKENS
+   ============================================================ */
+:root {
+  --bg:           #f4f3ef;
+  --surface:      #ffffff;
+  --surface2:     #efede8;
+  --surface3:     #e8e6e0;
+  --border:       rgba(0,0,0,0.09);
+  --border2:      rgba(0,0,0,0.16);
+  --text:         #1c1b18;
+  --text2:        #6b6a65;
+  --text3:        #9e9d97;
+  --green-bg:     #e1f5ee;
+  --green-border: #9fe1cb;
+  --green-text:   #0f6e56;
+  --green-mid:    #1d9e75;
+  --amber-bg:     #faeeda;
+  --amber-border: #f5c472;
+  --amber-text:   #854f0b;
+  --amber-mid:    #ba7517;
+  --red-bg:       #fce8e8;
+  --red-text:     #a32d2d;
+  --red-border:   #f09595;
+  --r-md:         8px;
+  --r-lg:         14px;
+  --r-xl:         20px;
+  --safe-bottom:  env(safe-area-inset-bottom, 0px);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:           #181816;
+    --surface:      #222220;
+    --surface2:     #2a2a27;
+    --surface3:     #323230;
+    --border:       rgba(255,255,255,0.08);
+    --border2:      rgba(255,255,255,0.15);
+    --text:         #eeede7;
+    --text2:        #9e9d97;
+    --text3:        #6b6a65;
+    --green-bg:     #092b1e;
+    --green-border: #0f6e56;
+    --green-text:   #5dcaa5;
+    --green-mid:    #1d9e75;
+    --amber-bg:     #2b1d04;
+    --amber-border: #854f0b;
+    --amber-text:   #fac775;
+    --amber-mid:    #ba7517;
+    --red-bg:       #2b0a0a;
+    --red-text:     #f09595;
+    --red-border:   #a32d2d;
+  }
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  padding: 0 1rem calc(1rem + var(--safe-bottom));
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+
+/* ============================================================
+   LAYOUT
+   ============================================================ */
+.app     { max-width: 440px; margin: 0 auto; padding-bottom: 3rem; }
+.card    { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 1.1rem 1.25rem; margin-bottom: 1rem; }
+.divider { height: 1px; background: var(--border); margin: 1rem 0; }
+
+/* ============================================================
+   HEADER — Branding MyS Capacitación
+   ============================================================ */
+.header {
+  padding: 1.1rem 0 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.header-left { display: flex; align-items: center; gap: 10px; }
+
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  background: var(--green-mid);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.brand-icon svg { width: 22px; height: 22px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+.header-titles h1   { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; line-height: 1.2; }
+.header-titles span { font-size: 11.5px; color: var(--text3); font-weight: 500; }
+
+.header-right { text-align: right; flex-shrink: 0; }
+.brand-name   { font-size: 12px; font-weight: 700; color: var(--green-mid); letter-spacing: 0.2px; line-height: 1.2; }
+.brand-sub    { font-size: 10px; color: var(--text3); }
+
+/* ============================================================
+   INSTALL BANNER — solo visible si no está instalado como PWA
+   ============================================================ */
+.install-banner {
+  background: var(--green-bg);
+  border: 1px solid var(--green-border);
+  border-radius: var(--r-lg);
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.install-banner.hidden { display: none; }
+.install-banner-icon svg { width: 20px; height: 20px; stroke: var(--green-text); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.install-banner-text  { flex: 1; font-size: 12.5px; color: var(--green-text); line-height: 1.4; }
+.install-banner-text strong { font-weight: 700; display: block; margin-bottom: 1px; }
+.install-btn {
+  background: var(--green-mid);
+  color: white;
+  border: none;
+  border-radius: var(--r-md);
+  padding: 7px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   MODE TOGGLE
+   ============================================================ */
+.toggle-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1rem; }
+.mode-btn {
+  padding: 11px 8px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text2);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  line-height: 1.4;
+  transition: all 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  min-height: 64px;
+}
+.mode-btn svg { width: 18px; height: 18px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; display: block; margin: 0 auto 5px; }
+.mode-btn.active       { border: 1.5px solid var(--green-mid); background: var(--green-bg); color: var(--green-text); }
+.mode-btn.active-amber { border: 1.5px solid var(--amber-mid); background: var(--amber-bg); color: var(--amber-text); }
+
+/* ============================================================
+   BADGE
+   ============================================================ */
+.badge { display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: var(--r-md); font-size: 12px; font-weight: 600; letter-spacing: 0.1px; margin-bottom: 1rem; }
+.badge svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2.5; }
+.badge.green { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+.badge.amber { background: var(--amber-bg); color: var(--amber-text); border: 1px solid var(--amber-border); }
+
+/* ============================================================
+   FORM ELEMENTS
+   ============================================================ */
+.field-label  { font-size: 12px; color: var(--text2); margin-bottom: 6px; display: block; font-weight: 500; }
+.field-group  { margin-bottom: 1rem; }
+.field-group:last-child { margin-bottom: 0; }
+.field-error  { font-size: 11.5px; color: var(--red-text); margin-top: 5px; display: none; }
+.field-error.visible { display: block; }
+
+select {
+  width: 100%; padding: 10px 32px 10px 12px; font-size: 14px;
+  border-radius: var(--r-md); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text);
+  appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6a65' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center;
+  min-height: 44px;
+}
+
+.input-row { display: flex; align-items: center; gap: 8px; }
+.prefix    { font-size: 16px; color: var(--text2); font-weight: 600; flex-shrink: 0; }
+
+input[type=number] {
+  flex: 1; width: 100%; padding: 11px 12px; font-size: 18px;
+  border-radius: var(--r-md); border: 1px solid var(--border2);
+  background: var(--surface2); color: var(--text);
+  -moz-appearance: textfield; outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  min-height: 48px;
+}
+input[type=number]:focus       { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(29,158,117,0.12); }
+input[type=number].input-error { border-color: var(--red-border); box-shadow: 0 0 0 3px rgba(163,45,45,0.10); }
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+.sub-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 0.75rem; }
+.sub-field label { font-size: 11.5px; color: var(--text2); display: block; margin-bottom: 5px; font-weight: 500; }
+.sub-field input[type=number] { font-size: 16px; padding: 9px 10px; min-height: 44px; }
+
+/* ============================================================
+   RESULTS
+   ============================================================ */
+.result-main       { background: var(--green-bg); border: 1px solid var(--green-border); border-radius: var(--r-lg); padding: 1.25rem 1.25rem; margin-bottom: 10px; }
+.result-main-label { font-size: 12px; color: var(--green-text); font-weight: 600; margin-bottom: 4px; opacity: 0.8; }
+.result-main-value { font-size: 36px; font-weight: 700; color: var(--green-text); letter-spacing: -1.5px; line-height: 1.1; }
+.result-main-sub   { font-size: 12px; color: var(--green-text); opacity: 0.65; margin-top: 5px; }
+
+.result-grid       { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.result-mini       { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 0.9rem 1rem; }
+.result-mini-label { font-size: 11px; color: var(--text3); margin-bottom: 3px; font-weight: 500; }
+.result-mini-value { font-size: 18px; font-weight: 600; color: var(--text); }
+
+.result-horas       { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 0.85rem 1rem; margin-bottom: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.result-horas-label { font-size: 12px; color: var(--text2); }
+.result-horas-value { font-size: 14px; font-weight: 600; color: var(--text); text-align: right; }
+
+.info-note     { font-size: 12px; color: var(--text3); line-height: 1.5; display: flex; gap: 7px; align-items: flex-start; padding: 0.75rem 1rem; background: var(--surface2); border-radius: var(--r-md); }
+.info-note svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; stroke: var(--text3); fill: none; stroke-width: 2; stroke-linecap: round; }
+
+.empty-state     { text-align: center; padding: 2.5rem 1rem; color: var(--text3); font-size: 14px; }
+.empty-state svg { width: 36px; height: 36px; stroke: var(--text3); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; display: block; margin: 0 auto 0.75rem; opacity: 0.5; }
+
+/* ============================================================
+   FORMULA
+   ============================================================ */
+.formula-card  { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); padding: 0.85rem 1rem; margin-bottom: 1rem; }
+.formula-title { font-size: 10px; color: var(--text3); font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+.formula-line  { font-family: 'SF Mono','Fira Code','Courier New',monospace; font-size: 12.5px; color: var(--text2); line-height: 2; }
+.formula-line span { background: var(--surface2); padding: 1px 6px; border-radius: 4px; color: var(--text); font-weight: 600; }
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.history-title  { font-size: 13px; font-weight: 600; color: var(--text2); }
+.history-clear  { font-size: 11.5px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 3px 8px; border-radius: 4px; min-height: 32px; }
+.history-clear:active { background: var(--surface3); }
+
+.history-item   { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); gap: 8px; }
+.history-item:last-child { border-bottom: none; }
+.history-left   { flex: 1; min-width: 0; }
+.history-bruto  { font-size: 15px; font-weight: 600; color: var(--text); }
+.history-meta   { font-size: 11px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-right  { text-align: right; flex-shrink: 0; }
+.history-liq    { font-size: 13px; color: var(--text2); }
+.history-badge  { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; margin-top: 3px; }
+.history-badge.green { background: var(--green-bg); color: var(--green-text); }
+.history-badge.amber { background: var(--amber-bg); color: var(--amber-text); }
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer { text-align: center; font-size: 11px; color: var(--text3); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); line-height: 2; }
+.footer a { color: var(--text3); text-decoration: underline; text-underline-offset: 2px; }
+.footer-brand { font-weight: 700; color: var(--green-mid); }
+</style>
+</head>
+<body>
+<h2 class="sr-only">Calculadora de Boleta de Honorarios SII Chile. Desarrollada por MyS Capacitación. Permite calcular el monto bruto a emitir según el líquido deseado, con retención del receptor o PPM propio.</h2>
+
+<div class="app">
+
+  <!-- HEADER CON BRANDING -->
+  <div class="header">
+    <div class="header-left">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </div>
+      <div class="header-titles">
+        <h1>Honorarios SII</h1>
+        <span>Calculadora · Chile</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="brand-name">MyS</div>
+      <div class="brand-sub">Capacitación</div>
+    </div>
+  </div>
+
+  <!-- BANNER DE INSTALACIÓN (se oculta si ya está instalada) -->
+  <div class="install-banner" id="install-banner">
+    <div class="install-banner-icon">
+      <svg viewBox="0 0 24 24"><path d="M12 2v13M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+    </div>
+    <div class="install-banner-text">
+      <strong>Instalar como app</strong>
+      Sin internet, siempre disponible
+    </div>
+    <button class="install-btn" id="install-btn" onclick="Install.prompt()">Instalar</button>
+  </div>
+
+  <!-- MODE TOGGLE -->
+  <div class="toggle-row" role="group" aria-label="Mecanismo de retención">
+    <button class="mode-btn active" onclick="UI.setMode('receptor')" id="btn-receptor" aria-pressed="true">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      Empleador retiene
+    </button>
+    <button class="mode-btn" onclick="UI.setMode('emisor')" id="btn-emisor" aria-pressed="false">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Yo retengo (PPM)
+    </button>
+  </div>
+
+  <!-- MAIN CARD -->
+  <div class="card">
+    <div id="rate-badge" class="badge green">
+      <svg viewBox="0 0 24 24"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+      <span id="rate-label">Retención receptor: 15,25%</span>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">¿Cómo ingresar el monto?</span>
+      <select id="calc-mode" onchange="UI.onCalcModeChange()" aria-label="Modo de cálculo">
+        <option value="liquido">Quiero recibir un monto líquido</option>
+        <option value="bruto">Tengo el monto bruto</option>
+        <option value="horas">Calcular por horas trabajadas</option>
+      </select>
+    </div>
+
+    <div id="panel-liquido" class="field-group">
+      <span class="field-label" id="label-liquido">Monto líquido que deseas recibir (CLP)</span>
+      <div class="input-row">
+        <span class="prefix" aria-hidden="true">$</span>
+        <input type="number" id="inp-liquido" min="1" max="999999999" step="1000"
+               placeholder="ej. 900000" oninput="UI.onInput()"
+               inputmode="numeric" aria-labelledby="label-liquido" />
+      </div>
+      <div class="field-error" id="err-liquido" role="alert"></div>
+    </div>
+
+    <div id="panel-bruto" class="field-group" style="display:none;">
+      <span class="field-label" id="label-bruto">Monto bruto de la boleta (CLP)</span>
+      <div class="input-row">
+        <span class="prefix" aria-hidden="true">$</span>
+        <input type="number" id="inp-bruto" min="1" max="999999999" step="1000"
+               placeholder="ej. 1062016" oninput="UI.onInput()"
+               inputmode="numeric" aria-labelledby="label-bruto" />
+      </div>
+      <div class="field-error" id="err-bruto" role="alert"></div>
+    </div>
+
+    <div id="panel-horas" class="field-group" style="display:none;">
+      <span class="field-label">Valor y cantidad de horas</span>
+      <div class="sub-row">
+        <div class="sub-field">
+          <label for="inp-valhora">Valor por hora ($)</label>
+          <input type="number" id="inp-valhora" min="1" max="99999999" step="500"
+                 placeholder="ej. 15000" oninput="UI.onInput()" inputmode="numeric" />
+          <div class="field-error" id="err-valhora" role="alert"></div>
+        </div>
+        <div class="sub-field">
+          <label for="inp-horas">Cantidad de horas</label>
+          <input type="number" id="inp-horas" min="0.5" max="9999" step="0.5"
+                 placeholder="ej. 20" oninput="UI.onInput()" inputmode="decimal" />
+          <div class="field-error" id="err-horas" role="alert"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="results-area" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- FORMULA -->
+  <div class="formula-card">
+    <div class="formula-title">Fórmula activa</div>
+    <div id="formula-display" class="formula-line"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div class="card" id="history-card" style="display:none;">
+    <div class="history-header">
+      <span class="history-title">Historial de cálculos</span>
+      <button class="history-clear" onclick="History.clear()" aria-label="Limpiar historial">Limpiar</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <div class="footer">
+    Tasa vigente 2025 · Solo referencia · Verificar en
+    <a href="https://www.sii.cl" target="_blank" rel="noopener noreferrer">sii.cl</a><br>
+    <span class="footer-brand">MyS Capacitación</span> · Funciona sin internet
+  </div>
+
+</div><!-- /app -->
+
+<script>
+"use strict";
+
+/* ============================================================
+   MODULE: Config
+   Tasas SII y constantes — único lugar a modificar si cambian
+   Fuente: Art. 74 N°2 Ley de la Renta / Resolución SII 2025
+   ============================================================ */
+const Config = (() => {
+  const RATES = {
+    receptor: {
+      id:        "receptor",
+      label:     "Retención receptor: 15,25%",
+      badge:     "green",
+      rate:      0.1525,
+      net:       0.8475,
+      modeLabel: "El empleador retiene y paga al SII",
+      since:     "2025"
+    },
+    emisor: {
+      id:        "emisor",
+      label:     "PPM propio: 10,50%",
+      badge:     "amber",
+      rate:      0.1050,
+      net:       0.8950,
+      modeLabel: "Tú declaras en F29 mensual",
+      since:     "2025"
+    }
+  };
+
+  const LIMITS = {
+    min:      1,
+    max:      999_999_999,
+    maxHours: 9_999,
+    minHours: 0.5
+  };
+
+  return { RATES, LIMITS };
+})();
+
+/* ============================================================
+   MODULE: Validator
+   Validación estricta de inputs — sin efectos secundarios
+   ============================================================ */
+const Validator = (() => {
+  function parsePositive(raw) {
+    if (raw === null || raw === undefined || raw === "") return null;
+    const n = parseFloat(raw);
+    if (!isFinite(n) || isNaN(n) || n <= 0) return null;
+    return n;
+  }
+
+  function validateAmount(raw) {
+    const n = parsePositive(raw);
+    if (n === null)            return { ok: false, value: null, msg: "Ingresa un monto válido mayor a cero." };
+    if (n < Config.LIMITS.min) return { ok: false, value: null, msg: "El monto mínimo es $1." };
+    if (n > Config.LIMITS.max) return { ok: false, value: null, msg: "El monto supera el máximo permitido." };
+    return { ok: true, value: n, msg: "" };
+  }
+
+  function validateHoras(rawVal, rawHrs) {
+    const val = parsePositive(rawVal);
+    const hrs = parsePositive(rawHrs);
+    const errors = { valHora: "", horas: "" };
+
+    if (val === null)                  errors.valHora = "Ingresa un valor por hora válido.";
+    else if (val > Config.LIMITS.max)  errors.valHora = "Valor por hora demasiado alto.";
+
+    if (hrs === null)                         errors.horas = "Ingresa la cantidad de horas.";
+    else if (hrs < Config.LIMITS.minHours)    errors.horas = "Mínimo 0,5 horas.";
+    else if (hrs > Config.LIMITS.maxHours)    errors.horas = "Cantidad de horas fuera de rango.";
+
+    const allOk = !errors.valHora && !errors.horas;
+    if (!allOk) return { ok: false, errors, value: null };
+
+    const product = val * hrs;
+    if (product > Config.LIMITS.max) {
+      errors.horas = "El total supera el máximo permitido.";
+      return { ok: false, errors, value: null };
+    }
+
+    return { ok: true, errors, value: product, valHora: val, horas: hrs };
+  }
+
+  return { validateAmount, validateHoras };
+})();
+
+/* ============================================================
+   MODULE: Calculator
+   Lógica pura — sin DOM, sin efectos secundarios
+   ============================================================ */
+const Calculator = (() => {
+  const round = n => Math.round(n);
+
+  function fromLiquido(liquido, rateObj) {
+    const bruto     = round(liquido / rateObj.net);
+    const retencion = round(bruto * rateObj.rate);
+    return { bruto, retencion, liquidoReal: bruto - retencion };
+  }
+
+  function fromBruto(bruto, rateObj) {
+    const retencion = round(bruto * rateObj.rate);
+    return { bruto, retencion, liquidoReal: bruto - retencion };
+  }
+
+  return { fromLiquido, fromBruto };
+})();
+
+/* ============================================================
+   MODULE: History
+   Historial en memoria — sin persistencia externa
+   ============================================================ */
+const History = (() => {
+  const MAX = 10;
+  let items = [];
+
+  const fmt = n => Math.round(n).toLocaleString("es-CL");
+
+  function add(entry) {
+    items.unshift({ ...entry, ts: new Date() });
+    if (items.length > MAX) items.pop();
+    render();
+  }
+
+  function clear() { items = []; render(); }
+
+  function render() {
+    const card = document.getElementById("history-card");
+    const list = document.getElementById("history-list");
+    if (items.length === 0) { card.style.display = "none"; return; }
+    card.style.display = "";
+    list.innerHTML = items.map(item => {
+      const bc   = item.mode === "receptor" ? "green" : "amber";
+      const bl   = item.mode === "receptor" ? "15,25%" : "PPM 10,50%";
+      const time = item.ts.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+      return `<div class="history-item">
+        <div class="history-left">
+          <div class="history-bruto">$${fmt(item.bruto)}</div>
+          <div class="history-meta">${item.meta} · ${time}</div>
+        </div>
+        <div class="history-right">
+          <div class="history-liq">Líquido: $${fmt(item.liquido)}</div>
+          <span class="history-badge ${bc}">${bl}</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  return { add, clear };
+})();
+
+/* ============================================================
+   MODULE: Install
+   Manejo del prompt de instalación PWA
+   ============================================================ */
+const Install = (() => {
+  let deferredPrompt = null;
+
+  function init() {
+    // Escuchar el evento nativo de instalación
+    window.addEventListener("beforeinstallprompt", e => {
+      e.preventDefault();
+      deferredPrompt = e;
+      // Mostrar banner solo si hay prompt disponible
+      const banner = document.getElementById("install-banner");
+      if (banner) banner.classList.remove("hidden");
+    });
+
+    // Ocultar banner si ya está instalada (modo standalone)
+    if (window.matchMedia("(display-mode: standalone)").matches ||
+        window.navigator.standalone === true) {
+      hideBanner();
+    }
+
+    // Ocultar al completar instalación
+    window.addEventListener("appinstalled", () => hideBanner());
+  }
+
+  function hideBanner() {
+    const banner = document.getElementById("install-banner");
+    if (banner) banner.classList.add("hidden");
+  }
+
+  function prompt() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(() => {
+      deferredPrompt = null;
+      hideBanner();
+    });
+  }
+
+  return { init, prompt };
+})();
+
+/* ============================================================
+   MODULE: UI
+   Manejo del DOM — depende de todos los módulos anteriores
+   ============================================================ */
+const UI = (() => {
+  let currentMode     = "receptor";
+  let currentCalcMode = "liquido";
+
+  const $ = id => document.getElementById(id);
+  const fmt = n => Math.round(n).toLocaleString("es-CL");
+
+  function showError(id, msg) {
+    const el = $(id);
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.toggle("visible", !!msg);
+    // Buscar input asociado para highlight
+    const inputId = id.replace("err-", "inp-");
+    const inp = $(inputId);
+    if (inp) inp.classList.toggle("input-error", !!msg);
+  }
+
+  function clearErrors() {
+    ["err-liquido","err-bruto","err-valhora","err-horas"].forEach(id => showError(id, ""));
+  }
+
+  function updateFormula() {
+    const r      = Config.RATES[currentMode];
+    const netPct = (r.net  * 100).toFixed(2).replace(".", ",");
+    const retPct = (r.rate * 100).toFixed(2).replace(".", ",");
+    const lines  = [];
+    if (currentCalcMode === "horas") {
+      lines.push("Líquido = Horas × <span>Valor/hora</span>");
+    }
+    lines.push(
+      currentCalcMode !== "bruto"
+        ? `Bruto = Líquido ÷ <span>${netPct}</span>`
+        : `Líquido = Bruto × <span>${netPct}</span>`
+    );
+    lines.push(`Retención = Bruto × <span>${retPct}%</span>`);
+    $("formula-display").innerHTML = lines.join("<br>");
+  }
+
+  function renderEmpty() {
+    $("results-area").innerHTML = `
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24">
+          <rect x="4" y="2" width="16" height="20" rx="2"/>
+          <line x1="8" y1="10" x2="16" y2="10"/>
+          <line x1="8" y1="14" x2="16" y2="14"/>
+          <line x1="8" y1="18" x2="12" y2="18"/>
+        </svg>
+        Ingresa un monto para calcular
+      </div>`;
+  }
+
+  function renderResults(result, metaLine, histMeta) {
+    const r = Config.RATES[currentMode];
+    const retPct = (r.rate * 100).toFixed(2).replace(".", ",");
+
+    const horasHTML = metaLine ? `
+      <div class="result-horas">
+        <span class="result-horas-label">Base de cálculo</span>
+        <span class="result-horas-value">${metaLine}</span>
+      </div>` : "";
+
+    $("results-area").innerHTML = `
+      <div class="result-main">
+        <div class="result-main-label">Emitir la boleta por</div>
+        <div class="result-main-value">$${fmt(result.bruto)}</div>
+        <div class="result-main-sub">Monto bruto a ingresar en sii.cl</div>
+      </div>
+      ${horasHTML}
+      <div class="result-grid">
+        <div class="result-mini">
+          <div class="result-mini-label">Recibirás</div>
+          <div class="result-mini-value">$${fmt(result.liquidoReal)}</div>
+        </div>
+        <div class="result-mini">
+          <div class="result-mini-label">Retención (${retPct}%)</div>
+          <div class="result-mini-value">$${fmt(result.retencion)}</div>
+        </div>
+      </div>
+      <div class="info-note">
+        <svg viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>${r.modeLabel}. Diferencia de $1–2 por redondeo es normal en el SII.</span>
+      </div>`;
+
+    History.add({
+      bruto:    result.bruto,
+      retencion:result.retencion,
+      liquido:  result.liquidoReal,
+      mode:     currentMode,
+      meta:     histMeta
+    });
+  }
+
+  function calculate() {
+    clearErrors();
+    const r = Config.RATES[currentMode];
+
+    if (currentCalcMode === "liquido") {
+      const v = Validator.validateAmount($("inp-liquido").value);
+      if (!v.ok) { showError("err-liquido", v.msg); renderEmpty(); return; }
+      renderResults(Calculator.fromLiquido(v.value, r), null, `Líquido: $${fmt(v.value)}`);
+
+    } else if (currentCalcMode === "bruto") {
+      const v = Validator.validateAmount($("inp-bruto").value);
+      if (!v.ok) { showError("err-bruto", v.msg); renderEmpty(); return; }
+      renderResults(Calculator.fromBruto(v.value, r), null, `Bruto: $${fmt(v.value)}`);
+
+    } else {
+      const v = Validator.validateHoras($("inp-valhora").value, $("inp-horas").value);
+      if (!v.ok) {
+        if (v.errors.valHora) showError("err-valhora", v.errors.valHora);
+        if (v.errors.horas)   showError("err-horas",   v.errors.horas);
+        renderEmpty();
+        return;
+      }
+      const metaLine = `${v.horas} hrs × $${fmt(v.valHora)}/hr`;
+      renderResults(Calculator.fromLiquido(v.value, r), metaLine, metaLine);
+    }
+  }
+
+  function setMode(mode) {
+    currentMode = mode;
+    const r = Config.RATES[mode];
+    $("btn-receptor").className = "mode-btn" + (mode === "receptor" ? " active" : "");
+    $("btn-emisor").className   = "mode-btn" + (mode === "emisor"   ? " active-amber" : "");
+    $("btn-receptor").setAttribute("aria-pressed", String(mode === "receptor"));
+    $("btn-emisor").setAttribute("aria-pressed",   String(mode === "emisor"));
+    $("rate-badge").className   = "badge " + r.badge;
+    $("rate-label").textContent = r.label;
+    updateFormula();
+    calculate();
+  }
+
+  function onCalcModeChange() {
+    currentCalcMode = $("calc-mode").value;
+    $("panel-liquido").style.display = currentCalcMode === "liquido" ? "" : "none";
+    $("panel-bruto").style.display   = currentCalcMode === "bruto"   ? "" : "none";
+    $("panel-horas").style.display   = currentCalcMode === "horas"   ? "" : "none";
+    clearErrors();
+    renderEmpty();
+    updateFormula();
+  }
+
+  function onInput() { calculate(); }
+
+  function init() {
+    updateFormula();
+    renderEmpty();
+    // Ocultar banner hasta que se detecte el prompt nativo
+    const banner = document.getElementById("install-banner");
+    if (banner) banner.classList.add("hidden");
+  }
+
+  return { setMode, onCalcModeChange, onInput, init };
+})();
+
+/* ============================================================
+   SERVICE WORKER — registro
+   ============================================================ */
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js")
+      .catch(err => {
+        // Fallo silencioso — la app sigue funcional sin SW
+        // No exponer detalles del error al usuario
+      });
+  });
+}
+
+/* ============================================================
+   BOOTSTRAP
+   ============================================================ */
+document.addEventListener("DOMContentLoaded", () => {
+  UI.init();
+  Install.init();
+});
+</script>
+</body>
+</html>
