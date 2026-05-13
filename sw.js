@@ -12,7 +12,7 @@
 "use strict";
 
 // Incrementar CACHE_VERSION al publicar cambios
-const CACHE_VERSION = "mys-honorarios-v2.0";
+const CACHE_VERSION = "mys-honorarios-v2.1";
 
 const ASSETS_TO_CACHE = [
   "./index.html",

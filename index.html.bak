@@ -265,6 +265,25 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
 .formula-line span { background: var(--surface2); padding: 1px 6px; border-radius: 4px; color: var(--text); font-weight: 600; }
 
 /* ============================================================
+   HISTORY
+   ============================================================ */
+.history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+.history-title  { font-size: 13px; font-weight: 600; color: var(--text2); }
+.history-clear  { font-size: 11.5px; color: var(--text3); background: none; border: none; cursor: pointer; padding: 3px 8px; border-radius: 4px; min-height: 32px; }
+.history-clear:active { background: var(--surface3); }
+
+.history-item   { display: flex; align-items: center; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); gap: 8px; }
+.history-item:last-child { border-bottom: none; }
+.history-left   { flex: 1; min-width: 0; }
+.history-bruto  { font-size: 15px; font-weight: 600; color: var(--text); }
+.history-meta   { font-size: 11px; color: var(--text3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-right  { text-align: right; flex-shrink: 0; }
+.history-liq    { font-size: 13px; color: var(--text2); }
+.history-badge  { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px; margin-top: 3px; }
+.history-badge.green { background: var(--green-bg); color: var(--green-text); }
+.history-badge.amber { background: var(--amber-bg); color: var(--amber-text); }
+
+/* ============================================================
    FOOTER
    ============================================================ */
 .footer { text-align: center; font-size: 11px; color: var(--text3); margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid var(--border); line-height: 2; }
@@ -384,6 +403,15 @@ input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
     <div id="formula-display" class="formula-line"></div>
   </div>
 
+  <!-- HISTORY -->
+  <div class="card" id="history-card" style="display:none;">
+    <div class="history-header">
+      <span class="history-title">Historial de cálculos</span>
+      <button class="history-clear" onclick="History.clear()" aria-label="Limpiar historial">Limpiar</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
   <div class="footer">
     Tasa vigente 2025 · Solo referencia · Verificar en
     <a href="https://www.sii.cl" target="_blank" rel="noopener noreferrer">sii.cl</a><br>
@@ -501,6 +529,49 @@ const Calculator = (() => {
 })();
 
 /* ============================================================
+   MODULE: History
+   Historial en memoria — sin persistencia externa
+   ============================================================ */
+const History = (() => {
+  const MAX = 10;
+  let items = [];
+
+  const fmt = n => Math.round(n).toLocaleString("es-CL");
+
+  function add(entry) {
+    items.unshift({ ...entry, ts: new Date() });
+    if (items.length > MAX) items.pop();
+    render();
+  }
+
+  function clear() { items = []; render(); }
+
+  function render() {
+    const card = document.getElementById("history-card");
+    const list = document.getElementById("history-list");
+    if (items.length === 0) { card.style.display = "none"; return; }
+    card.style.display = "";
+    list.innerHTML = items.map(item => {
+      const bc   = item.mode === "receptor" ? "green" : "amber";
+      const bl   = item.mode === "receptor" ? "15,25%" : "PPM 10,50%";
+      const time = item.ts.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
+      return `<div class="history-item">
+        <div class="history-left">
+          <div class="history-bruto">$${fmt(item.bruto)}</div>
+          <div class="history-meta">${item.meta} · ${time}</div>
+        </div>
+        <div class="history-right">
+          <div class="history-liq">Líquido: $${fmt(item.liquido)}</div>
+          <span class="history-badge ${bc}">${bl}</span>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  return { add, clear };
+})();
+
+/* ============================================================
    MODULE: Install
    Manejo del prompt de instalación PWA
    ============================================================ */
@@ -600,7 +671,7 @@ const UI = (() => {
       </div>`;
   }
 
-  function renderResults(result, metaLine) {
+  function renderResults(result, metaLine, histMeta) {
     const r = Config.RATES[currentMode];
     const retPct = (r.rate * 100).toFixed(2).replace(".", ",");
 
@@ -635,6 +706,14 @@ const UI = (() => {
         </svg>
         <span>${r.modeLabel}. Diferencia de $1–2 por redondeo es normal en el SII.</span>
       </div>`;
+
+    History.add({
+      bruto:    result.bruto,
+      retencion:result.retencion,
+      liquido:  result.liquidoReal,
+      mode:     currentMode,
+      meta:     histMeta
+    });
   }
 
   function calculate() {
@@ -644,12 +723,12 @@ const UI = (() => {
     if (currentCalcMode === "liquido") {
       const v = Validator.validateAmount($("inp-liquido").value);
       if (!v.ok) { showError("err-liquido", v.msg); renderEmpty(); return; }
-      renderResults(Calculator.fromLiquido(v.value, r), null);
+      renderResults(Calculator.fromLiquido(v.value, r), null, `Líquido: $${fmt(v.value)}`);
 
     } else if (currentCalcMode === "bruto") {
       const v = Validator.validateAmount($("inp-bruto").value);
       if (!v.ok) { showError("err-bruto", v.msg); renderEmpty(); return; }
-      renderResults(Calculator.fromBruto(v.value, r), null);
+      renderResults(Calculator.fromBruto(v.value, r), null, `Bruto: $${fmt(v.value)}`);
 
     } else {
       const v = Validator.validateHoras($("inp-valhora").value, $("inp-horas").value);
@@ -660,7 +739,7 @@ const UI = (() => {
         return;
       }
       const metaLine = `${v.horas} hrs × $${fmt(v.valHora)}/hr`;
-      renderResults(Calculator.fromLiquido(v.value, r), metaLine);
+      renderResults(Calculator.fromLiquido(v.value, r), metaLine, metaLine);
     }
   }
 
